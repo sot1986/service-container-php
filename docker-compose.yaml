@@ -1,0 +1,31 @@
+services:
+  # nginx
+  web:
+    build:
+      dockerfile: ./docker/nginx/Dockerfile
+    ports:
+      - "80:80" # map port on localhost 80 to container 80 port
+    volumes:
+      - ./docker/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+  # php
+  app:
+    build:
+      dockerfile: ./docker/php/8.2/Dockerfile
+    # in production no need for volumes mounting
+  # mysql
+  db:
+    image: mysql:8.1
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_USER: sail
+      MYSQL_PASSWORD: secret
+      MYSQL_DATABASE: docker-php      
+    # remove ports exposure in production
+    volumes:
+      - mysqldata:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  mysqldata:
